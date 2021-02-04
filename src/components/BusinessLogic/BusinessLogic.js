@@ -87,7 +87,6 @@ export const calculateBullishTrend = (arr) => {
     ...bullishTrends.sort((a, b) => (a.days > b.days ? -1 : 1)),
   ];
 
-  console.log('This should have correct amount of days YES?!', sortedArray);
   return sortedArray[0];
 };
 
@@ -104,11 +103,11 @@ export const sortByPriceChange = (arr) => {
       // Evaluate and turn back to string with $-sign
       // Would it be better to have this as just a number?
       // We could just add the $-sign when printing the table
-      const priceDifference = `$${(highNum - lowNum).toFixed(4)}`;
+      const priceDifference = `$${(highNum - lowNum).toFixed(3)}`;
 
       // Create a new array with price difference included
-      const newArray = [date, close, volume, open, high, low, priceDifference];
-      return newArray;
+      const obj = [date, close, volume, open, high, low, priceDifference];
+      return obj;
     }
   );
 
@@ -121,12 +120,12 @@ export const sortByPriceChange = (arr) => {
     return diffA > diffB ? -1 : 1;
   });
 
-  // console.log('SORTED BY HIGHEST PRICE CHANGE', sorted);
   return sorted;
 };
 
 export const sortByTradingVolume = (arr) => {
   const list = [...arr];
+
   // Sort the array by volume in descending order
   const sorted = list.sort((a, b) => {
     const volumeA = Number(a[2]);

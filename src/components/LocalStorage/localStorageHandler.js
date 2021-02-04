@@ -1,25 +1,25 @@
 // CSV data
-export const getCSVStateFromLocalStorage = () => {
+export const getRawCSVStateFromLocalStorage = () => {
   const storage = localStorage.getItem('csvState');
   // console.log('Getting state from local storage');
   if (storage) return JSON.parse(storage).csv;
   return null;
 };
 
-export const storeCSVStateInLocalStorage = (csv) => {
+export const storeRawCSVStateInLocalStorage = (csv) => {
   localStorage.setItem('csvState', JSON.stringify({ csv }));
   // console.log('Setting state to local storage', localStorage);
 };
 
 // List status depending on user selected date range
-export const getCurrentListStateFromLocalStorage = () => {
+export const getDateRangeStateFromLocalStorage = () => {
   const storage = localStorage.getItem('currentListState');
   // console.log('GET LOCALSTORAGE, currentList', storage);
   if (storage) return JSON.parse(storage).array;
   return null;
 };
 
-export const storeCurrentListStateInLocalStorage = (array) => {
+export const storeDateRangeStateInLocalStorage = (array) => {
   localStorage.setItem('currentListState', JSON.stringify({ array }));
   // console.log('SET LOCALSTORAGE, currentList', localStorage);
 };

@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import CSVReader from 'react-csv-reader';
 import './App.css';
+
+// Components
+import FileInput from './components/FileInput/FileInput';
 import DateInput from './components/DateInput/DateInput';
+import RadioSelection from './components/RadioSelection/RadioSelection';
 import Chart from './components/Chart/Chart';
+
+// Sorting & calculations
 import {
   calculateBullishTrend,
   sortByPriceChange,
@@ -11,25 +16,24 @@ import {
 
 // Using local storage so we don't lose the file, selected dates, or the current state of the list on page reload
 import {
-  clearLocalStorage,
-  getCSVStateFromLocalStorage,
-  getCurrentListStateFromLocalStorage,
+  getRawCSVStateFromLocalStorage,
+  getDateRangeStateFromLocalStorage,
   getStartDateStateFromLocalStorage,
   getEndDateStateFromLocalStorage,
-  storeCSVStateInLocalStorage,
-  storeCurrentListStateInLocalStorage,
+  storeRawCSVStateInLocalStorage,
+  storeDateRangeStateInLocalStorage,
   storeStartDateStateInLocalStorage,
   storeEndDateStateInLocalStorage,
 } from './components/LocalStorage/localStorageHandler';
 
 const App = () => {
-  const [originalList, setOriginalList] = useState(
-    getCSVStateFromLocalStorage()
+  const [rawCSV, setRawCSV] = useState(getRawCSVStateFromLocalStorage());
+  const [dateRange, setDateRange] = useState(
+    getDateRangeStateFromLocalStorage()
   );
-  const [currentList, setCurrentList] = useState(
-    getCurrentListStateFromLocalStorage()
-  );
-  const [priceChangeList, setPriceChangeList] = useState(null);
+
+  const [bullishList, setBullishList] = useState([]);
+  const [priceChangeList, setPriceChangeList] = useState([]);
   const [volumeList, setVolumeList] = useState([]);
   const [startDate, setStartDate] = useState(
     getStartDateStateFromLocalStorage()
@@ -38,7 +42,7 @@ const App = () => {
   const [bullishCount, setBullishCount] = useState(0);
   const [bullishStart, setBullishStart] = useState('');
   const [bullishEnd, setBullishEnd] = useState('');
-  const [radioSelection, setRadioSelection] = useState(null);
+  const [radioSelection, setRadioSelection] = useState('Bullish');
 
   const startDateHandler = (event) => {
     storeStartDateStateInLocalStorage(event.target.value);
@@ -55,7 +59,7 @@ const App = () => {
     // tossing the labels from csv file and returning only values that matter
     const list = data.slice(1);
 
-    setOriginalList(list);
+    setRawCSV(list);
 
     // Start out with the previous 5 dates showing
     const initialStartDate = list[4][0];
@@ -71,12 +75,11 @@ const App = () => {
   };
 
   const radioButtonHandler = (event) => {
-    console.log('Radio button selected', event.target.value);
     setRadioSelection(event.target.value);
   };
 
   // Filters the array with user defined date range
-  const filterList = (list) => {
+  const filterDateRange = (list) => {
     return list.filter(
       ([date]) =>
         new Date(date) <= new Date(endDate) &&
@@ -84,26 +87,23 @@ const App = () => {
     );
   };
 
-  // Updates the array of values displayed in the table
-  const updateCurrentList = () => {
-    const updated = filterList(originalList);
-    storeCurrentListStateInLocalStorage(updated);
-    setCurrentList(updated);
+  // Updates the array with selected dates only
+  const updateDateRange = () => {
+    const updated = filterDateRange(rawCSV);
+    storeDateRangeStateInLocalStorage(updated);
+    setDateRange(updated);
   };
 
   useEffect(() => {
-    storeCSVStateInLocalStorage(originalList);
-  }, [originalList]);
-
-  useEffect(() => {
-    if (originalList) {
-      updateCurrentList();
+    storeRawCSVStateInLocalStorage(rawCSV);
+    if (rawCSV) {
+      updateDateRange();
     }
-  }, []);
+  }, [rawCSV]);
 
   useEffect(() => {
     if (startDate && endDate) {
-      updateCurrentList();
+      updateDateRange();
     }
   }, [startDate, endDate]);
 
@@ -113,9 +113,10 @@ const App = () => {
     let priceResponse = [];
     let volumeResponse = [];
 
-    if (currentList) {
+    if (dateRange) {
       if (radioSelection === 'Bullish') {
-        bullishResponse = calculateBullishTrend(currentList);
+        setBullishList(dateRange);
+        bullishResponse = calculateBullishTrend(dateRange);
         if (bullishResponse !== undefined) {
           setBullishCount(bullishResponse.days);
           setBullishStart(bullishResponse.started);
@@ -123,30 +124,21 @@ const App = () => {
         }
       }
 
-      if (radioSelection === 'Price') {
-        priceResponse = sortByPriceChange(currentList);
-        console.log('PRICE DIFF');
-        console.table(priceResponse);
-        setPriceChangeList(priceResponse);
-      }
-
       if (radioSelection === 'Volume') {
-        volumeResponse = sortByTradingVolume(currentList);
-        console.log('VOLUME');
-        console.table(volumeResponse);
+        volumeResponse = sortByTradingVolume(dateRange);
         setVolumeList(volumeResponse);
       }
+
+      if (radioSelection === 'Price') {
+        priceResponse = sortByPriceChange(dateRange);
+        setPriceChangeList(priceResponse);
+      }
     }
-  }, [currentList]);
+  }, [dateRange, radioSelection]);
 
   // TODO LIST
-  // - DONE Sort currentList by Volume
-  // - DONE Sort currentList by Price change
   // - Sort currentList by price change percentages
-  // - Add price change column to Chart-component when highest price change is selected
-  // - DONE Select sorting method by radio button
-  // - PARTLY DONE Display message for Volume / Price change
-  // - PARTLY DONE Display message for Price change percentage
+  // - Display message for Price change percentage
   // - Save radio selection to local storage
   // - Refactor
   // - Write tests for each component
@@ -154,91 +146,69 @@ const App = () => {
 
   return (
     <div className="App">
-      <section className="fileInput">
-        <CSVReader
-          onFileLoaded={(data, fileInfo) => {
-            console.log(fileInfo);
-            fileHandler(data);
-          }}
-        />
-        <button className="button" onClick={clearLocalStorage} name="clear">
-          Clear local storage
-        </button>
-      </section>
+      <FileInput handler={fileHandler} />
 
-      {originalList && (
+      {/* Once a CSV file is loaded, display the rest */}
+      {rawCSV && (
         <div>
           <section className="dateInputs">
             <DateInput
               label="start"
-              list={originalList}
+              list={rawCSV}
               onChangeHandler={startDateHandler}
               selectedDate={startDate}
             />
             <DateInput
               label="end"
-              list={originalList}
+              list={rawCSV}
               onChangeHandler={endDateHandler}
               selectedDate={endDate}
             />
           </section>
           <section>
-            {new Date(startDate) <= new Date(endDate) && currentList ? (
-              <div className="tableSection">
-                <div className="radioSelect" onChange={radioButtonHandler}>
-                  <input
-                    type="radio"
-                    id="bullish"
-                    value="Bullish"
-                    name="radioGroup"
-                  />
-                  <label htmlFor="bullish">Bullish trend</label>
-                  <input
-                    type="radio"
-                    id="volume"
-                    value="Volume"
-                    name="radioGroup"
-                  />{' '}
-                  <label htmlFor="volume">Highest volume</label>
-                  <input
-                    type="radio"
-                    id="pricechange"
-                    value="Price"
-                    name="radioGroup"
-                  />{' '}
-                  <label htmlFor="pricechange">Highest price change</label>
-                  <input
-                    type="radio"
-                    id="opening"
-                    value="Opening"
-                    name="radioGroup"
-                  />
-                  <label htmlFor="opening">Opening price</label>
-                </div>
-                {radioSelection === 'Bullish' && (
-                  <p>
-                    In Apple stock historical data the Close/Last price
-                    increased {bullishCount} days in a row between{' '}
-                    {bullishStart} and {bullishEnd}
-                  </p>
+            {/* Date range has to be set with start date being the same as or before end date */}
+            {new Date(startDate) <= new Date(endDate) && dateRange ? (
+              <div>
+                {/* Selecting which way to sort the data */}
+                <RadioSelection handler={radioButtonHandler} />
+
+                {/* These could be abstracted away to it's own component */}
+                {radioSelection === 'Bullish' && bullishList && (
+                  <div className="tableSection">
+                    <p>
+                      In Apple stock historical data the Close/Last price
+                      increased {bullishCount} days in a row between{' '}
+                      {bullishStart} and {bullishEnd}
+                    </p>
+                    <Chart dataSet={dateRange} />
+                  </div>
                 )}
 
-                {radioSelection === 'Volume' && (
-                  <p>
-                    In Apple stock historical data the DATE A had the highest
-                    trading volume and significant stock price change between{' '}
-                    {bullishStart} and {bullishEnd}
-                  </p>
+                {radioSelection === 'Volume' && volumeList.length > 0 && (
+                  <div className="tableSection">
+                    <p>
+                      In Apple stock historical data {volumeList[0][0]} had the
+                      highest trading volume at {volumeList[0][2]}
+                    </p>
+                    <Chart dataSet={volumeList} />
+                  </div>
+                )}
+
+                {radioSelection === 'Price' && priceChangeList.length > 0 && (
+                  <div className="tableSection">
+                    <p>
+                      In Apple stock historical data {priceChangeList[0][0]} had
+                      the highest stock price change at {priceChangeList[0][6]}
+                    </p>
+                    <Chart dataSet={priceChangeList} />
+                  </div>
                 )}
 
                 {radioSelection === 'Opening' && (
-                  <p>
-                    In Apple stock historical data the DATE A had the highest
-                    price change % with 8.69% in a day between {bullishStart}{' '}
-                    and {bullishEnd}
-                  </p>
+                  <div className="tableSection">
+                    <p>This feature is still in development... Sorry</p>
+                  </div>
                 )}
-                <Chart dataSet={currentList} />
               </div>
             ) : (
               <p style={{ color: 'red' }}>Invalid dates selected</p>

@@ -2,6 +2,9 @@ import React from 'react';
 import './Chart.css';
 
 export default function Chart({ dataSet }) {
+  // Error handling for empty arrays
+  if (!dataSet.length) return <p>Chart was given an empty array</p>;
+
   return (
     <table className="table">
       <thead>
@@ -12,17 +15,19 @@ export default function Chart({ dataSet }) {
           <th>Open</th>
           <th>High</th>
           <th>Low</th>
+          {dataSet[0].length === 7 && <th>Price difference</th>}
         </tr>
       </thead>
       <tbody>
-        {dataSet.map(([date, close, volume, open, high, low]) => (
-          <tr key={date}>
-            <td>{date}</td>
-            <td>{close}</td>
-            <td>{volume}</td>
-            <td>{open}</td>
-            <td>{high}</td>
-            <td>{low}</td>
+        {dataSet.map((item) => (
+          <tr key={item[0]}>
+            <td>{item[0]}</td>
+            <td>{item[1]}</td>
+            <td>{item[2]}</td>
+            <td>{item[3]}</td>
+            <td>{item[4]}</td>
+            <td>{item[5]}</td>
+            {item.length === 7 && <td>{item[6]}</td>}
           </tr>
         ))}
       </tbody>
