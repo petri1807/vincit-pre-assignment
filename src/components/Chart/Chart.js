@@ -14,9 +14,9 @@ export default function Chart({ dataSet }) {
           <th>Low</th>
         </tr>
       </thead>
-      {dataSet.map(([date, close, volume, open, high, low]) => (
-        <tbody key={date}>
-          <tr>
+      <tbody>
+        {dataSet.map(([date, close, volume, open, high, low]) => (
+          <tr key={date}>
             <td>{date}</td>
             <td>{close}</td>
             <td>{volume}</td>
@@ -24,8 +24,8 @@ export default function Chart({ dataSet }) {
             <td>{high}</td>
             <td>{low}</td>
           </tr>
-        </tbody>
-      ))}
+        ))}
+      </tbody>
     </table>
   );
 }

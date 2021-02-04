@@ -11,7 +11,8 @@ const DateInput = ({ label, list, onChangeHandler, selectedDate }) => {
       <label htmlFor={label}>{labelMessage}</label>
       <select id={label} onChange={onChangeHandler}>
         {list.map(([date]) => (
-          <option key={date} value={date} defaultValue={selectedDate}>
+          // Chrome warns about using 'selected', but this is the only way I know of having the correct dates being shown
+          <option key={date} value={date} selected={date === selectedDate}>
             {date}
           </option>
         ))}
