@@ -1,10 +1,10 @@
 export const calculateBullishTrend = (arr) => {
-  if (arr === []) return;
+  if (arr.length === 0) return;
 
   // Reverse the array so we can traverse through it in ascending order, oldest date to newest
   const data = [...arr].reverse();
 
-  // An array of objects makes things easier to read below, and we don't need anything else from the original anyway
+  // An array of objects makes things easier to read below, and we don't need anything else for this
   const dataObjects = data.map(([date, closingPrice]) => {
     return { date: date, price: Number(closingPrice.replace('$', '')) };
   });
@@ -20,7 +20,7 @@ export const calculateBullishTrend = (arr) => {
   let currentDate = '';
   let previousDate = '';
 
-  // Initialize with first day in the array, ERROR PRONE
+  // Initialize with first day in the array
   let newStartingDate = dataObjects[0].date;
   let newEndingDate = '';
 
@@ -101,13 +101,11 @@ export const sortByPriceChange = (arr) => {
       const lowNum = Number(low.replace('$', ''));
 
       // Evaluate and turn back to string with $-sign
-      // Would it be better to have this as just a number?
-      // We could just add the $-sign when printing the table
       const priceDifference = `$${(highNum - lowNum).toFixed(3)}`;
 
       // Create a new array with price difference included
-      const obj = [date, close, volume, open, high, low, priceDifference];
-      return obj;
+      const newArray = [date, close, volume, open, high, low, priceDifference];
+      return newArray;
     }
   );
 
@@ -134,10 +132,4 @@ export const sortByTradingVolume = (arr) => {
   });
 
   return sorted;
-};
-
-export const sortBySimpleMovingAverage = (arr) => {
-  const list = [...arr];
-
-  // WTF is this task?? :D
 };
