@@ -91,6 +91,8 @@ export const calculateBullishTrend = (arr) => {
 };
 
 export const sortByPriceChange = (arr) => {
+  if (arr.length === 0) return;
+
   const list = [...arr];
 
   // Add price differences to the array
@@ -122,6 +124,8 @@ export const sortByPriceChange = (arr) => {
 };
 
 export const sortByTradingVolume = (arr) => {
+  if (arr.length === 0) return;
+
   const list = [...arr];
 
   // Sort the array by volume in descending order
@@ -130,6 +134,64 @@ export const sortByTradingVolume = (arr) => {
     const volumeB = Number(b[2]);
     return volumeA > volumeB ? -1 : 1;
   });
+
+  return sorted;
+};
+
+export const sortByOpeningPriceSMA = (arr) => {
+  if (arr.length < 6) return;
+
+  const list = [...arr];
+
+  const getPercentageChange = (high, low) => {
+    const difference = high - low;
+    return (difference / high) * 100;
+  };
+
+  const calculateSMA = (arr) => {
+    if (arr.length < 6) return 'Not enough data';
+
+    const date = arr[0][0];
+    const openingPrice = Number(arr[0][3].replace('$', ''));
+    const N1 = Number(arr[1][1].replace('$', ''));
+    const N2 = Number(arr[2][1].replace('$', ''));
+    const N3 = Number(arr[3][1].replace('$', ''));
+    const N4 = Number(arr[4][1].replace('$', ''));
+    const N5 = Number(arr[5][1].replace('$', ''));
+
+    const SMA5 = (N5 + N4 + N3 + N2 + N1) / 5;
+
+    const differenceInPercentage = getPercentageChange(
+      Math.max(openingPrice, SMA5),
+      Math.min(openingPrice, SMA5)
+    );
+
+    return [
+      date,
+      arr[0][1],
+      arr[0][2],
+      arr[0][3],
+      arr[0][4],
+      arr[0][5],
+      differenceInPercentage,
+    ];
+  };
+
+  const fiveDayIcrements = [];
+
+  for (let i = 5; i < list.length; i++) {
+    fiveDayIcrements.push([
+      list[i - 5],
+      list[i - 4],
+      list[i - 3],
+      list[i - 2],
+      list[i - 1],
+      list[i],
+    ]);
+  }
+
+  const SMAlist = fiveDayIcrements.map((inc) => calculateSMA(inc));
+  const sorted = SMAlist.sort((a, b) => (a[6] > b[6] ? -1 : 1));
 
   return sorted;
 };

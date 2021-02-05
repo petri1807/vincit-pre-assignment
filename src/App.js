@@ -12,6 +12,7 @@ import {
   calculateBullishTrend,
   sortByPriceChange,
   sortByTradingVolume,
+  sortByOpeningPriceSMA,
 } from './components/BusinessLogic/businessLogic';
 
 // Using local storage so we don't lose the file, selected dates, or the current state of the list on page reload
@@ -33,8 +34,10 @@ const App = () => {
   );
 
   const [bullishList, setBullishList] = useState([]);
-  const [priceChangeList, setPriceChangeList] = useState([]);
   const [volumeList, setVolumeList] = useState([]);
+  const [priceChangeList, setPriceChangeList] = useState([]);
+  const [openingList, setOpeningList] = useState([]);
+
   const [startDate, setStartDate] = useState(
     getStartDateStateFromLocalStorage()
   );
@@ -42,6 +45,7 @@ const App = () => {
   const [bullishCount, setBullishCount] = useState(0);
   const [bullishStart, setBullishStart] = useState('');
   const [bullishEnd, setBullishEnd] = useState('');
+  const [openingError, setOpeningError] = useState(false);
   const [radioSelection, setRadioSelection] = useState('Bullish');
 
   const startDateHandler = (event) => {
@@ -112,12 +116,14 @@ const App = () => {
     let bullishResponse = { days: 0, started: 'None', ended: 'Didnt' };
     let priceResponse = [];
     let volumeResponse = [];
+    let openingResponse = [];
 
     if (dateRange) {
       if (radioSelection === 'Bullish') {
         setBullishList(dateRange);
         bullishResponse = calculateBullishTrend(dateRange);
-        if (bullishResponse !== undefined) {
+
+        if (bullishResponse) {
           setBullishCount(bullishResponse.days);
           setBullishStart(bullishResponse.started);
           setBullishEnd(bullishResponse.ended);
@@ -132,6 +138,17 @@ const App = () => {
       if (radioSelection === 'Price') {
         priceResponse = sortByPriceChange(dateRange);
         setPriceChangeList(priceResponse);
+      }
+
+      if (radioSelection === 'Opening') {
+        // TODO
+        openingResponse = sortByOpeningPriceSMA(dateRange);
+        if (openingResponse) {
+          setOpeningError(false);
+          setOpeningList(openingResponse);
+        } else {
+          setOpeningError(true);
+        }
       }
     }
   }, [dateRange, radioSelection]);
@@ -200,15 +217,30 @@ const App = () => {
                       In Apple stock historical data {priceChangeList[0][0]} had
                       the highest stock price change at {priceChangeList[0][6]}
                     </p>
-                    <Chart dataSet={priceChangeList} />
+                    <Chart
+                      dataSet={priceChangeList}
+                      extraColumn="priceDifference"
+                    />
                   </div>
                 )}
 
-                {radioSelection === 'Opening' && (
-                  <div className="tableSection">
-                    <p>This feature is still in development... Sorry</p>
-                  </div>
+                {radioSelection === 'Opening' && openingError && (
+                  <p>
+                    Needs at least a 6-day window selected to calculate SMA-5
+                  </p>
                 )}
+                {radioSelection === 'Opening' &&
+                  openingList.length > 0 &&
+                  !openingError && (
+                    <div className="tableSection">
+                      <p>
+                        In Apple stock historical data {openingList[0][0]} had
+                        the highest stock price change at{' '}
+                        {openingList[0][6].toFixed(3)} %
+                      </p>
+                      <Chart dataSet={openingList} extraColumn="percentage" />
+                    </div>
+                  )}
               </div>
             ) : (
               <p style={{ color: 'red' }}>Invalid dates selected</p>
