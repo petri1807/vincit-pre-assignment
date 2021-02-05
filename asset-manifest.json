@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/vincit-pre-assignment/static/css/main.803837bc.chunk.css",
-    "main.js": "/vincit-pre-assignment/static/js/main.1299518f.chunk.js",
-    "main.js.map": "/vincit-pre-assignment/static/js/main.1299518f.chunk.js.map",
+    "main.js": "/vincit-pre-assignment/static/js/main.e3bd070e.chunk.js",
+    "main.js.map": "/vincit-pre-assignment/static/js/main.e3bd070e.chunk.js.map",
     "runtime-main.js": "/vincit-pre-assignment/static/js/runtime-main.5a753fbf.js",
     "runtime-main.js.map": "/vincit-pre-assignment/static/js/runtime-main.5a753fbf.js.map",
     "static/js/2.2cc74f10.chunk.js": "/vincit-pre-assignment/static/js/2.2cc74f10.chunk.js",
@@ -17,6 +17,6 @@
     "static/js/runtime-main.5a753fbf.js",
     "static/js/2.2cc74f10.chunk.js",
     "static/css/main.803837bc.chunk.css",
-    "static/js/main.1299518f.chunk.js"
+    "static/js/main.e3bd070e.chunk.js"
   ]
 }
