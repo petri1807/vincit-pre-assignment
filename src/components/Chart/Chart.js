@@ -1,12 +1,12 @@
 import React from 'react';
 import './Chart.css';
 
-export default function Chart({ dataSet, extraColumn }) {
+export default function Chart({ dataSet, category }) {
   // Error handling for empty arrays
   if (!dataSet.length) return <p>Chart was given an empty array</p>;
 
   return (
-    <table className="table">
+    <table className="content-table">
       <thead>
         <tr>
           <th>Date</th>
@@ -15,8 +15,8 @@ export default function Chart({ dataSet, extraColumn }) {
           <th>Open</th>
           <th>High</th>
           <th>Low</th>
-          {extraColumn === 'priceDifference' && <th>Price difference</th>}
-          {extraColumn === 'percentage' && <th>Price change %</th>}
+          {category === 'price' && <th>Price change ($)</th>}
+          {category === 'opening' && <th>Price change (%)</th>}
         </tr>
       </thead>
       <tbody>
@@ -28,8 +28,8 @@ export default function Chart({ dataSet, extraColumn }) {
             <td>{item[3]}</td>
             <td>{item[4]}</td>
             <td>{item[5]}</td>
-            {extraColumn === 'priceDifference' && <td>{item[6]}</td>}
-            {extraColumn === 'percentage' && <td>{item[6].toFixed(3)} %</td>}
+            {category === 'price' && <td>{item[6]}</td>}
+            {category === 'opening' && <td>{item[6].toFixed(3)} %</td>}
           </tr>
         ))}
       </tbody>

@@ -60,7 +60,7 @@ const App = () => {
 
   // Handles the CSV file
   const fileHandler = (data) => {
-    // tossing the labels from csv file and returning only values that matter
+    // Tossing the labels from csv file and returning only values that matter
     const list = data.slice(1);
 
     setRawCSV(list);
@@ -141,7 +141,6 @@ const App = () => {
       }
 
       if (radioSelection === 'Opening') {
-        // TODO
         openingResponse = sortByOpeningPriceSMA(dateRange);
         if (openingResponse) {
           setOpeningError(false);
@@ -153,16 +152,9 @@ const App = () => {
     }
   }, [dateRange, radioSelection]);
 
-  // TODO LIST
-  // - Sort currentList by price change percentages
-  // - Display message for Price change percentage
-  // - Save radio selection to local storage
-  // - Refactor
-  // - Write tests for each component
-  // - Push to GitHub and send to Vincit for review
-
   return (
     <div className="App">
+      {!rawCSV && <p>Welcome, Scrooge! Open a .csv file to analyze the data</p>}
       <FileInput handler={fileHandler} />
 
       {/* Once a CSV file is loaded, display the rest */}
@@ -189,43 +181,42 @@ const App = () => {
                 {/* Selecting which way to sort the data */}
                 <RadioSelection handler={radioButtonHandler} />
 
-                {/* These could be abstracted away to it's own component */}
+                {/* These could be abstracted away to a separate component */}
                 {radioSelection === 'Bullish' && bullishList && (
                   <div className="tableSection">
                     <p>
                       In Apple stock historical data the Close/Last price
-                      increased {bullishCount} days in a row between{' '}
-                      {bullishStart} and {bullishEnd}
+                      increased <b>{bullishCount}</b> days in a row between{' '}
+                      <b>{bullishStart}</b> and <b>{bullishEnd}</b>
                     </p>
-                    <Chart dataSet={dateRange} />
+                    <Chart dataSet={dateRange} category="bullish" />
                   </div>
                 )}
 
                 {radioSelection === 'Volume' && volumeList.length > 0 && (
                   <div className="tableSection">
                     <p>
-                      In Apple stock historical data {volumeList[0][0]} had the
-                      highest trading volume at {volumeList[0][2]}
+                      In Apple stock historical data <b>{volumeList[0][0]}</b>{' '}
+                      had the highest trading volume at{' '}
+                      <b>{volumeList[0][2]}</b>
                     </p>
-                    <Chart dataSet={volumeList} />
+                    <Chart dataSet={volumeList} category="volume" />
                   </div>
                 )}
 
                 {radioSelection === 'Price' && priceChangeList.length > 0 && (
                   <div className="tableSection">
                     <p>
-                      In Apple stock historical data {priceChangeList[0][0]} had
-                      the highest stock price change at {priceChangeList[0][6]}
+                      In Apple stock historical data{' '}
+                      <b>{priceChangeList[0][0]}</b> had the highest stock price
+                      change within a day at <b>{priceChangeList[0][6]}</b>
                     </p>
-                    <Chart
-                      dataSet={priceChangeList}
-                      extraColumn="priceDifference"
-                    />
+                    <Chart dataSet={priceChangeList} category="price" />
                   </div>
                 )}
 
                 {radioSelection === 'Opening' && openingError && (
-                  <p>
+                  <p style={{ color: 'red' }}>
                     Needs at least a 6-day window selected to calculate SMA-5
                   </p>
                 )}
@@ -234,11 +225,11 @@ const App = () => {
                   !openingError && (
                     <div className="tableSection">
                       <p>
-                        In Apple stock historical data {openingList[0][0]} had
-                        the highest stock price change at{' '}
-                        {openingList[0][6].toFixed(3)} %
+                        In Apple stock historical data{' '}
+                        <b>{openingList[0][0]}</b> had the highest stock price
+                        change at <b>{openingList[0][6].toFixed(3)} %</b>
                       </p>
-                      <Chart dataSet={openingList} extraColumn="percentage" />
+                      <Chart dataSet={openingList} category="opening" />
                     </div>
                   )}
               </div>

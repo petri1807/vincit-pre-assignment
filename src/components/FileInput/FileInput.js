@@ -8,7 +8,6 @@ const FileInput = ({ handler }) => {
       <CSVReader
         className="csvreader"
         onFileLoaded={(data, fileInfo) => {
-          console.log(fileInfo);
           handler(data);
         }}
       />

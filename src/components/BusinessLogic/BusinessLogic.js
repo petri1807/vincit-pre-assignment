@@ -123,6 +123,9 @@ export const sortByPriceChange = (arr) => {
   return sorted;
 };
 
+// The logic here is a bit flawed as it requires an array of 6 dates minimum to calculate SMA-5,
+// and returns only the dates SMA-5 was calculated for, basically dumping the 5 oldest dates.
+// Fix by giving this an array of the selected dates plus 5 dates prior to those to calculate SMA-5 for all selected dates
 export const sortByTradingVolume = (arr) => {
   if (arr.length === 0) return;
 
