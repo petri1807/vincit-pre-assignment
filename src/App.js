@@ -13,7 +13,7 @@ import {
   sortByPriceChange,
   sortByTradingVolume,
   sortByOpeningPriceSMA,
-} from './components/BusinessLogic/businessLogic';
+} from './components/BusinessLogic/BusinessLogic';
 
 // Using local storage so we don't lose the file, selected dates, or the current state of the list on page reload
 import {
