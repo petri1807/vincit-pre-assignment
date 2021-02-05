@@ -1,6 +1,8 @@
-# Getting Started with Create React App
+# Vincit pre-assignment
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+Live demo on [GitHub Pages](https://petri1807.github.io/vincit-pre-assignment/)
 
 ## Available Scripts
 
