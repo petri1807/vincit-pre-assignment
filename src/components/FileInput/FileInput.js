@@ -8,7 +8,9 @@ const FileInput = ({ handler }) => {
       <CSVReader
         className="csvreader"
         onFileLoaded={(data, fileInfo) => {
-          handler(data);
+          if (fileInfo.type === 'application/vnd.ms-excel') {
+            handler(data);
+          }
         }}
       />
       <button className="button" onClick={clearLocalStorage} name="clear">
