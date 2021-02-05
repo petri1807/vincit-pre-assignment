@@ -157,7 +157,18 @@ const App = () => {
 
   return (
     <div className="App">
-      {!rawCSV && <p>Welcome, Scrooge! Open a .csv file to analyze the data</p>}
+      {!rawCSV && (
+        <div>
+          <p>Welcome, Scrooge! Open a .csv file to analyze the data</p>
+          <p>
+            Download stock market data from{' '}
+            <a href="https://www.nasdaq.com/market-activity/stocks/aapl/historical">
+              NASDAQ
+            </a>
+          </p>
+        </div>
+      )}
+
       <FileInput handler={fileHandler} />
 
       {/* Once a CSV file is loaded, display the rest */}
