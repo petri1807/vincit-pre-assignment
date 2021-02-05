@@ -98,13 +98,16 @@ const App = () => {
     setDateRange(updated);
   };
 
+  // Whenever csv file changes, store it in local storage
   useEffect(() => {
     storeRawCSVStateInLocalStorage(rawCSV);
+
     if (rawCSV) {
       updateDateRange();
     }
   }, [rawCSV]);
 
+  // Whenever dates change, update the list
   useEffect(() => {
     if (startDate && endDate) {
       updateDateRange();

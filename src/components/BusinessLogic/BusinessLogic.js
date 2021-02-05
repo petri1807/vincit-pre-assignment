@@ -123,9 +123,6 @@ export const sortByPriceChange = (arr) => {
   return sorted;
 };
 
-// The logic here is a bit flawed as it requires an array of 6 dates minimum to calculate SMA-5,
-// and returns only the dates SMA-5 was calculated for, basically dumping the 5 oldest dates.
-// Fix by giving this an array of the selected dates plus 5 dates prior to those to calculate SMA-5 for all selected dates
 export const sortByTradingVolume = (arr) => {
   if (arr.length === 0) return;
 
@@ -141,6 +138,9 @@ export const sortByTradingVolume = (arr) => {
   return sorted;
 };
 
+// The logic here is a bit flawed as it requires an array of 6 dates minimum to calculate SMA-5,
+// and returns only the dates SMA-5 was calculated for, basically dumping the 5 oldest dates.
+// Fix by giving this an array of the selected dates plus 5 dates prior to those to calculate SMA-5 for all selected dates
 export const sortByOpeningPriceSMA = (arr) => {
   if (arr.length < 6) return;
 
@@ -180,10 +180,11 @@ export const sortByOpeningPriceSMA = (arr) => {
     ];
   };
 
-  const fiveDayIcrements = [];
+  const fiveDayIncrements = [];
 
+  // Starting from the 6th day in the original array, add the date and previous 5 days as an array to fiveDayIncrements
   for (let i = 5; i < list.length; i++) {
-    fiveDayIcrements.push([
+    fiveDayIncrements.push([
       list[i - 5],
       list[i - 4],
       list[i - 3],
@@ -193,7 +194,10 @@ export const sortByOpeningPriceSMA = (arr) => {
     ]);
   }
 
-  const SMAlist = fiveDayIcrements.map((inc) => calculateSMA(inc));
+  // Calculate SMA-5 and difference percentage for each date and store it in SMAList
+  const SMAlist = fiveDayIncrements.map((inc) => calculateSMA(inc));
+
+  // Sort by percentage in descending order
   const sorted = SMAlist.sort((a, b) => (a[6] > b[6] ? -1 : 1));
 
   return sorted;
