@@ -29,22 +29,13 @@ import {
 
 const App = () => {
   const [rawCSV, setRawCSV] = useState(getRawCSVStateFromLocalStorage());
-  const [dateRange, setDateRange] = useState(
-    getDateRangeStateFromLocalStorage()
-  );
-
-  const [bullishList, setBullishList] = useState([]);
+  const [dateRange, setDateRange] = useState(getDateRangeStateFromLocalStorage());
   const [volumeList, setVolumeList] = useState([]);
   const [priceChangeList, setPriceChangeList] = useState([]);
   const [openingList, setOpeningList] = useState([]);
-
-  const [startDate, setStartDate] = useState(
-    getStartDateStateFromLocalStorage()
-  );
+  const [bullishTrend, setBullishTrend] = useState([]);
+  const [startDate, setStartDate] = useState(getStartDateStateFromLocalStorage());
   const [endDate, setEndDate] = useState(getEndDateStateFromLocalStorage());
-  const [bullishCount, setBullishCount] = useState(0);
-  const [bullishStart, setBullishStart] = useState('');
-  const [bullishEnd, setBullishEnd] = useState('');
   const [openingError, setOpeningError] = useState(false);
   const [radioSelection, setRadioSelection] = useState('Bullish');
 
@@ -123,14 +114,8 @@ const App = () => {
 
     if (dateRange) {
       if (radioSelection === 'Bullish') {
-        setBullishList(dateRange);
         bullishResponse = calculateBullishTrend(dateRange);
-
-        if (bullishResponse) {
-          setBullishCount(bullishResponse.days);
-          setBullishStart(bullishResponse.started);
-          setBullishEnd(bullishResponse.ended);
-        }
+        setBullishTrend(bullishResponse);
       }
 
       if (radioSelection === 'Volume') {
@@ -196,12 +181,13 @@ const App = () => {
                 <RadioSelection handler={radioButtonHandler} />
 
                 {/* These could be abstracted away to a separate component */}
-                {radioSelection === 'Bullish' && bullishList && (
+                {radioSelection === 'Bullish' && bullishTrend && (
                   <div className="tableSection">
                     <p>
                       In Apple stock historical data the Close/Last price
-                      increased <b>{bullishCount}</b> days in a row between{' '}
-                      <b>{bullishStart}</b> and <b>{bullishEnd}</b>
+                      increased <b>{bullishTrend.days}</b> days in a row between{' '}
+                      <b>{bullishTrend.started}</b> and{' '}
+                      <b>{bullishTrend.ended}</b>
                     </p>
                     <Chart dataSet={dateRange} category="bullish" />
                   </div>
@@ -241,7 +227,7 @@ const App = () => {
                       <p>
                         In Apple stock historical data{' '}
                         <b>{openingList[0][0]}</b> had the highest stock price
-                        change at <b>{openingList[0][6].toFixed(3)} %</b>
+                        change % compared to simple moving average for the past five days at <b>{openingList[0][6].toFixed(3)} %</b>
                       </p>
                       <Chart dataSet={openingList} category="opening" />
                     </div>
